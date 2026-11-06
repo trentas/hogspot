@@ -2,39 +2,39 @@
 
 ```
 ╭──────────────────────────────────────────────────────────╮
-│  hogspot — caçando os disk hogs                          │
+│  hogspot — spot the disk hogs                            │
 ╰──────────────────────────────────────────────────────────╯
 ```
 
 ### Spot the disk hogs.
 
-**Descubra onde os GBs do seu disco foram parar — e o que é seguro apagar.**
+**Find out where your disk space went — and what is safe to delete.**
 
-[![macOS](https://img.shields.io/badge/macOS-suportado-C97B5B?style=flat-square&logo=apple&logoColor=white)](#-requisitos)
-[![Linux](https://img.shields.io/badge/Linux-Ubuntu%20%2F%20Debian-C97B5B?style=flat-square&logo=linux&logoColor=white)](#-requisitos)
-[![Confirmação](https://img.shields.io/badge/limpeza-s%C3%B3%20com%20confirma%C3%A7%C3%A3o-7BA887?style=flat-square)](#-segurança)
-[![Bash](https://img.shields.io/badge/bash-3.2%2B-D8A155?style=flat-square&logo=gnubash&logoColor=white)](#-requisitos)
-[![Zero deps](https://img.shields.io/badge/depend%C3%AAncias-nenhuma-7BA887?style=flat-square)](#-requisitos)
-[![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-D8A155?style=flat-square)](LICENSE)
+[![macOS](https://img.shields.io/badge/macOS-supported-C97B5B?style=flat-square&logo=apple&logoColor=white)](#-requirements)
+[![Linux](https://img.shields.io/badge/Linux-Ubuntu%20%2F%20Debian-C97B5B?style=flat-square&logo=linux&logoColor=white)](#-requirements)
+[![Confirmation](https://img.shields.io/badge/cleanup-only%20after%20confirmation-7BA887?style=flat-square)](#-safety)
+[![Bash](https://img.shields.io/badge/bash-3.2%2B-D8A155?style=flat-square&logo=gnubash&logoColor=white)](#-requirements)
+[![Zero deps](https://img.shields.io/badge/dependencies-none-7BA887?style=flat-square)](#-requirements)
+[![MIT License](https://img.shields.io/badge/license-MIT-D8A155?style=flat-square)](LICENSE)
 
 </div>
 
 ---
 
-`hogspot` é um script único de shell que varre sua máquina, mostra **onde o espaço
-está indo** e — o que ninguém mais faz — **qual comando roda pra recuperar cada GB**,
-classificado por risco.
+`hogspot` is a single shell script that scans your machine, shows **where the space
+is going** and — what nobody else does — **which command gets each GB back**,
+labeled by risk.
 
-A varredura não apaga nada. No fim, um menu mostra os detalhes de cada item e roda o
-comando que você escolher — só depois da sua confirmação.
+The scan deletes nothing. At the end, a menu shows the details of each item and runs
+the command you pick — only after you confirm.
 
-> **Por que existe:** DaisyDisk te mostra *onde* está. `du -sh *` te mostra *quanto*.
-> Nenhum dos dois te diz que aqueles 18 GB são simuladores iOS órfãos que somem com
-> um `xcrun simctl delete unavailable`.
+> **Why it exists:** DaisyDisk shows you *where* it is. `du -sh *` shows you *how much*.
+> Neither tells you that those 18 GB are orphaned iOS simulators that go away with
+> a single `xcrun simctl delete unavailable`.
 
 ---
 
-## ⚡ Uso rápido
+## ⚡ Quick start
 
 ```bash
 git clone https://github.com/trentas/hogspot.git
@@ -42,259 +42,259 @@ cd hogspot
 ./hogspot.sh
 ```
 
-Sem instalação, sem daemon, sem dependências. Se quiser deixar no `PATH`:
+No install, no daemon, no dependencies. If you want it on your `PATH`:
 
 ```bash
 sudo install -m 755 hogspot.sh /usr/local/bin/hogspot
 hogspot
 ```
 
-Ele varre a máquina, mostra um resumo do que dá pra limpar e abre um menu: digite
-o número de um item pra ver o que é, onde está e o comando que libera o espaço.
+It scans the machine, shows a summary of what can be cleaned and opens a menu: type
+an item's number to see what it is, where it lives and the command that frees the space.
 
-**Com pressa?** `./hogspot.sh --quick` pula os scans lentos (varredura de
-projetos e arquivos gigantes pelo `$HOME`) e termina em segundos.
+**In a hurry?** `./hogspot.sh --quick` skips the slow scans (projects and huge
+files across `$HOME`) and finishes in seconds.
 
 ---
 
-## 📋 Exemplo de saída
+## 📋 Sample output
 
-O resumo começa pelo que importa — quanto dá pra liberar e com que risco — e
-lista cada oportunidade numerada, agrupada por nível de risco:
+The summary starts with what matters — how much you can free and at what risk — and
+lists every opportunity, numbered and grouped by risk level:
 
 ```text
-━━ Resumo ━━
+━━ Summary ━━
 
-  Disco (container APFS): 393.7 GB de 460.4 GB em uso (86%) — 66.7 GB livres
+  Disk (APFS container): 393.7 GB of 460.4 GB used (86%) — 66.7 GB free
 
-  Dá pra liberar      libera   livre depois
-    SEGURO            47.3 GB       114.0 GB   regenera sozinho
-  + MODERADO          23.9 GB       137.9 GB   custa re-download ou rebuild
-  + REVISAR           61.2 GB       199.1 GB   decisão sua: pode haver dado seu
-  (estimativas: itens sobrepostos contam uma vez)
+  You can free          frees     free after
+    SAFE              47.3 GB       114.0 GB   regenerates on its own
+  + MODERATE          23.9 GB       137.9 GB   costs a re-download or rebuild
+  + REVIEW            61.2 GB       199.1 GB   your call: may contain your data
+  (estimates: overlapping items count once)
 
-━━ O que dá pra limpar ━━
+━━ What can be cleaned ━━
 
-  SEGURO — regenera sozinho (47.3 GB no total)
-     1.   18.4 GB  7 simulador(es) iOS indisponível(eis)
+  SAFE — regenerates on its own (47.3 GB in total)
+     1.   18.4 GB  7 unavailable iOS simulator(s)
      2.    7.3 GB  Homebrew (cleanup -s --prune=all)
      3.    6.8 GB  Cache: com.brave.Browser
      ...
 
-  MODERADO — custa re-download ou rebuild (23.9 GB no total)
-     9.   12.7 GB  Simulator runtimes em /Library/Developer/CoreSimulator/Profiles/Runtimes  (manual)
+  MODERATE — costs a re-download or rebuild (23.9 GB in total)
+     9.   12.7 GB  Simulator runtimes in /Library/Developer/CoreSimulator/Profiles/Runtimes  (manual)
      ...
 
-  REVISAR — decisão sua: pode haver dado seu (61.2 GB no total)
-    14.    9.1 GB  Docker (imagens/containers/volumes reclaimable)
+  REVIEW — your call: may contain your data (61.2 GB in total)
+    14.    9.1 GB  Docker (reclaimable images/containers/volumes)
      ...
 
-  Fora da conta:
-    · --quick: node_modules, builds, worktrees e arquivos >1 GB pelo $HOME não foram varridos
+  Not counted:
+    · --quick: node_modules, builds, worktrees and files >1 GB across $HOME weren't scanned
 
-✓ Análise concluída em 41 s.
+✓ Scan finished in 41 s.
 
-  Digite números da lista (ex.: 2 ou 1 3 5-7) pra ver detalhes e limpar.
-  t roda todos os SEGURO · l mostra a lista · r relatório completo · s salva em arquivo · Enter sai
-  Nada roda sem você confirmar.
+  Type numbers from the list (e.g. 2 or 1 3 5-7) to see details and clean up.
+  a runs all SAFE · l shows the list · r full report · s saves to a file · Enter quits
+  Nothing runs without your confirmation.
 ```
 
 <details>
-<summary><b>Ver um item sendo limpo pelo menu</b></summary>
+<summary><b>Cleaning an item from the menu</b></summary>
 
 ```text
   › 2
 
-  2. Homebrew (cleanup -s --prune=all)  SEGURO  7.3 GB
-     regenera sozinho
-     onde:     ~/Library/Caches/Homebrew
-     comando:  brew cleanup -s --prune=all
-     maiores dentro:
+  2. Homebrew (cleanup -s --prune=all)  SAFE  7.3 GB
+     regenerates on its own
+     where:    ~/Library/Caches/Homebrew
+     command:  brew cleanup -s --prune=all
+     biggest inside:
         6.9 GB  downloads
       412.0 MB  Cask
 
-  Rodar 1 comando(s) (libera ~7.3 GB)? [s/N] s
+  Run 1 command(s) (frees ~7.3 GB)? [y/N] y
 
   $ brew cleanup -s --prune=all
   ==> This operation has freed approximately 7.3GB of disk space.
   ✓ Homebrew (cleanup -s --prune=all)
 
-  Livre agora (disco): 74.0 GB (+7.3 GB)
+  Free now (disk): 74.0 GB (+7.3 GB)
 ```
 
 </details>
 
-Quer o relatório seção por seção (cada cache, o mapa da raiz, o `docker system df`, os
-dry-runs do Homebrew)? Rode com `--full`, ou aperte `r` no menu.
+Want the report section by section (every cache, the root map, `docker system df`,
+the Homebrew dry-runs)? Run it with `--full`, or press `r` in the menu.
 
 ---
 
-## 🎛 Opções
+## 🎛 Options
 
-| Flag | O que faz |
+| Flag | What it does |
 |---|---|
-| *(nenhuma)* | Resumo do que dá pra limpar, seguido do menu |
-| `--full` | Mostra o relatório completo, seção por seção, antes do resumo |
-| `--top N` | Quantos itens por seção no relatório completo (default: `15`) |
-| `--quick` | Pula os scans demorados (projetos — `node_modules`, builds, worktrees — e arquivos gigantes no `$HOME`) |
-| `--detail` | Abre a composição interna dos caches de dev, com comando por subpasta |
-| `--report ARQUIVO` | Salva o relatório completo (seções + resumo com os comandos) em markdown |
-| `--no-menu` | Só imprime, sem menu no fim (o resumo passa a mostrar o comando de cada item) |
-| `--no-color` | Sem cores nem spinner (bom pra pipe, CI e logs) |
-| `--help`, `-h` | Ajuda |
+| *(none)* | Summary of what can be cleaned, followed by the menu |
+| `--full` | Prints the full report, section by section, before the summary |
+| `--top N` | How many items per section in the full report (default: `15`) |
+| `--quick` | Skips the slow scans (projects — `node_modules`, builds, worktrees — and huge files in `$HOME`) |
+| `--detail` | Breaks down what's inside the dev caches, with a command per subfolder |
+| `--report FILE` | Saves the full report (sections + summary with the commands) as markdown |
+| `--no-menu` | Print only, no menu at the end (the summary then shows each item's command) |
+| `--no-color` | No colors or spinner (good for pipes, CI and logs) |
+| `--help`, `-h` | Help |
 
 ```bash
 ./hogspot.sh --detail --top 25
 ./hogspot.sh --report ~/Downloads/hogspot-$(date +%F).md
-./hogspot.sh --quick --full --no-color > relatorio.txt
+./hogspot.sh --quick --full --no-color > report.txt
 ```
 
 ---
 
-## 🔍 O que ele olha
+## 🔍 What it looks at
 
-Cada seção só aparece se existir na sua máquina — sem Docker instalado, sem seção de Docker.
+Each section only shows up if it exists on your machine — no Docker installed, no Docker section.
 
-| Área | macOS | Linux |
+| Area | macOS | Linux |
 |---|---|---|
-| **Visão geral do disco** | Container APFS + todos os volumes (não só `/`) | `/`, `$HOME` e `/boot` separadamente; avisa quando `/boot` passa de 80%; swapfile e reserva do ext4 (com dica de `tune2fs` quando o disco aperta) |
-| **Mapa da raiz** | — | O `/` por pasta (abre `/home`, `/var`, `/var/lib` e `/opt`), fechando a conta com o `df`: sem root mostra o que ficou sem medir (e o que o Docker declara); com root, aponta arquivos apagados ainda abertos (`lsof +L1`) |
-| **Snapshots locais** | Time Machine (`tmutil`) | ZFS / Timeshift / Btrfs |
-| **Home** | Top N pastas, Downloads, Lixeira | idem (respeita `xdg-user-dir`) |
-| **Caches do usuário** | `~/Library/Caches` | `~/.cache` (`$XDG_CACHE_HOME`) |
-| **Dados de apps** | `~/Library/Application Support` | `~/.local/share` |
-| **Apps empacotados** | `~/Library/Containers` | Flatpak (`~/.var/app`) e Snap (`~/snap`) |
-| **Sistema** | Logs em `~/Library/Logs` | Cache do apt/dnf/pacman, `apt autoremove` (órfãos e kernels antigos, pelo próprio apt), maiores pacotes instalados, snaps instalados, revisões desativadas e downloads órfãos do snapd, seed da instalação, journal do systemd (avisa quando não tem limite), logs gigantes de `/var/log` um a um, core dumps, apport, caches do root (`/root/.cache`, `/root/go`) |
-| **Xcode / iOS** | DerivedData, Archives, DeviceSupport, simuladores indisponíveis, runtimes `unusable`, backups do MobileSync | — |
-| **Navegadores** | Chrome: cache HTTP, PWAs, `component_crx_cache` | Chrome, Chromium, Brave, Edge, Vivaldi, Firefox (incl. snap e Flatpak) |
-| **Homebrew** | Dry-run conservador **e** agressivo, com o ganho real de cada um; tamanho do Cellar e dependências órfãs | idem, se instalado |
+| **Disk overview** | APFS container + every volume (not just `/`) | `/`, `$HOME` and `/boot` separately; warns when `/boot` goes over 80%; swapfile and the ext4 reserve (with a `tune2fs` tip when the disk is tight) |
+| **Root map** | — | `/` by folder (opening up `/home`, `/var`, `/var/lib` and `/opt`), reconciled with `df`: without root it shows what couldn't be measured (and what Docker reports); with root, it points to deleted files still held open (`lsof +L1`) |
+| **Local snapshots** | Time Machine (`tmutil`) | ZFS / Timeshift / Btrfs |
+| **Home** | Top N folders, Downloads, Trash | same (honors `xdg-user-dir`) |
+| **User caches** | `~/Library/Caches` | `~/.cache` (`$XDG_CACHE_HOME`) |
+| **App data** | `~/Library/Application Support` | `~/.local/share` |
+| **Packaged apps** | `~/Library/Containers` | Flatpak (`~/.var/app`) and Snap (`~/snap`) |
+| **System** | Logs in `~/Library/Logs` | apt/dnf/pacman cache, `apt autoremove` (orphans and old kernels, by apt itself), biggest installed packages, installed snaps, disabled revisions and orphaned snapd downloads, install seed, systemd journal (warns when it has no limit), huge `/var/log` files one by one, core dumps, apport, root's caches (`/root/.cache`, `/root/go`) |
+| **Xcode / iOS** | DerivedData, Archives, DeviceSupport, unavailable simulators, `unusable` runtimes, MobileSync backups | — |
+| **Browsers** | Chrome: HTTP cache, PWAs, `component_crx_cache` | Chrome, Chromium, Brave, Edge, Vivaldi, Firefox (incl. snap and Flatpak) |
+| **Homebrew** | Conservative **and** aggressive dry-runs, with the real gain of each; Cellar size and orphaned dependencies | same, if installed |
 | **Containers** | Docker, OrbStack, Colima, Lima | Docker (incl. `/var/lib/containerd`), Podman |
-| **Caches de dev** | `.npm`, `.pnpm-store`, `.yarn`, `.gradle`, `.m2`, `.cargo`, `.rustup`, `.nvm`, `.bun`, `go/pkg/mod`, `.cocoapods`, `.minikube`, `.vagrant.d`, Claude Code (versões antigas e transcripts)… | idem + `.conda`, `.nv`, virtualenvs do pipenv, pacotes `pip --user` |
-| **Projetos** | `node_modules` (total agregado), artefatos de build (`.next`, `.turbo`, `target/` de Rust/Maven), git worktrees com idade e alterações locais | idem |
-| **Espalhados** | Arquivos isolados > 1 GB | idem |
+| **Dev caches** | `.npm`, `.pnpm-store`, `.yarn`, `.gradle`, `.m2`, `.cargo`, `.rustup`, `.nvm`, `.bun`, `go/pkg/mod`, `.cocoapods`, `.minikube`, `.vagrant.d`, Claude Code (old versions and transcripts)… | same + `.conda`, `.nv`, pipenv virtualenvs, `pip --user` packages |
+| **Projects** | `node_modules` (aggregated total), build artifacts (`.next`, `.turbo`, Rust/Maven `target/`), git worktrees with age and local changes | same |
+| **Strays** | Single files > 1 GB | same |
 
 ---
 
-## 🚦 Níveis de risco
+## 🚦 Risk levels
 
-Toda oportunidade sai etiquetada. É a diferença entre "libera espaço" e "libera espaço e você se arrepende".
+Every opportunity gets a label. It's the difference between "frees space" and "frees space and you regret it".
 
-| Nível | Significa | Exemplos |
+| Level | Means | Examples |
 |---|---|---|
-| 🟢 **SEGURO** | Regenera sozinho. Você não perde nada além de um download. | DerivedData, cache do npm, lixeira, simuladores sem runtime, cache do brew |
-| 🟡 **MODERADO** | Liberável, mas custa um re-download ou rebuild. | `~/.gradle/caches`, `~/.m2/repository`, `go clean -modcache`, runtimes do Simulator |
-| 🔴 **REVISAR** | Decisão manual. Pode ter dado seu dentro. | `Application Support`, Archives do Xcode, snapshots ZFS, backups de iPhone, git worktrees, arquivos grandes soltos |
+| 🟢 **SAFE** | Regenerates on its own. You lose nothing but a download. | DerivedData, npm cache, trash, simulators with no runtime, brew cache |
+| 🟡 **MODERATE** | Can be freed, but costs a re-download or rebuild. | `~/.gradle/caches`, `~/.m2/repository`, `go clean -modcache`, Simulator runtimes |
+| 🔴 **REVIEW** | Manual decision. May have your data inside. | `Application Support`, Xcode Archives, ZFS snapshots, iPhone backups, git worktrees, big stray files |
 
-Alguns itens ganham refinamento automático: um `~/.cache/pip` não vira `rm -rf` genérico,
-vira `pip cache purge`. Caches do iCloud (`com.apple.bird`, `CloudDocs`, `cloudd`) são
-rebaixados pra **REVISAR** mesmo estando dentro de `Caches` — apagar dispara re-sync.
-Pasta de cache cheia de repositórios git (clones normais ou `--bare`) vira **MODERADO**:
-nenhum app recria aquilo sozinho, só clonando de novo.
+Some items get refined automatically: a `~/.cache/pip` doesn't become a generic `rm -rf`,
+it becomes `pip cache purge`. iCloud caches (`com.apple.bird`, `CloudDocs`, `cloudd`) are
+downgraded to **REVIEW** even though they live inside `Caches` — deleting them triggers a re-sync.
+A cache folder full of git repositories (regular or `--bare` clones) becomes **MODERATE**:
+no app recreates that on its own, only cloning again does.
 
-O resumo também **desduplica por contenção**: se uma pasta e sua subpasta forem
-registradas, os bytes contam uma vez só. Nada de somar 400 GB num disco de 460.
-Itens abaixo de 50 MB viram uma linha só por nível ("+5 itens menores").
+The summary also **dedups by containment**: if a folder and one of its subfolders are
+both registered, their bytes count once. No adding up to 400 GB on a 460 GB disk.
+Items under 50 MB collapse into a single line per level ("+5 smaller items").
 
-Além dos três níveis, o resumo traz **Outras ações** — ajustes que seguram o
-crescimento ou devolvem espaço sem apagar nada (limitar o cache do navegador, o
-tamanho do journal, a reserva do ext4) e que ficam fora dos totais — e **Fora da
-conta**: o que a varredura não conseguiu medir (sem root, Docker parado, `--quick`).
+Besides the three levels, the summary has **Other actions** — tweaks that slow down
+growth or give space back without deleting anything (capping the browser cache, the
+journal size, the ext4 reserve), which stay out of the totals — and **Not counted**:
+what the scan couldn't measure (no root, Docker stopped, `--quick`).
 
 ---
 
-## 🛡 Segurança
+## 🛡 Safety
 
-O contrato é curto:
+The contract is short:
 
-- **A varredura não muda nada.** Ela só chama `du`, `find`, `df` e os dry-runs
-  oficiais das ferramentas (`brew cleanup -n`, `apt-get -s autoremove`,
+- **The scan changes nothing.** It only calls `du`, `find`, `df` and the tools'
+  official dry-runs (`brew cleanup -n`, `apt-get -s autoremove`,
   `docker system df`, `simctl list`, `git --no-optional-locks status`).
-- **Nada roda sem você confirmar.** O menu mostra o comando exato antes de
-  perguntar; o padrão da pergunta é *não*. Item **REVISAR** só roda se você digitar `sim`.
-- **O que pede julgamento fica com você.** Application Support, backups de iPhone,
-  `node_modules` de projetos e qualquer comando com lacuna (`<id>`, `<projeto>`) aparecem
-  como *manual*: o hogspot mostra a instrução e não executa nada.
-- **Path suspeito não vira comando.** Se o nome de uma pasta tem aspas, `$` ou crase,
-  o item não roda pelo menu — dentro das aspas, isso viraria código.
-- **Fora de um terminal, só imprime.** Em pipe, CI ou com `--no-menu` não há menu.
-- **Sem rede.** Não baixa nada, não envia telemetria, não pede seu e-mail.
-- **Sem daemon.** Roda, mostra, morre.
-- **2.500 linhas de bash legível.** Se não confia, [leia](hogspot.sh).
+- **Nothing runs without your confirmation.** The menu shows the exact command before
+  asking; the default answer is *no*. A **REVIEW** item only runs if you type `yes`.
+- **What needs judgment stays with you.** Application Support, iPhone backups,
+  project `node_modules` and any command with a blank (`<id>`, `<project>`) show up
+  as *manual*: hogspot shows the instruction and runs nothing.
+- **Suspicious paths don't become commands.** If a folder name has quotes, `$` or a
+  backtick, the item can't be run from the menu — inside the quotes, that would become code.
+- **Outside a terminal, it only prints.** In a pipe, in CI or with `--no-menu` there is no menu.
+- **No network.** It downloads nothing, sends no telemetry, never asks for your email.
+- **No daemon.** It runs, shows, exits.
+- **2,500 lines of readable bash.** If you don't trust it, [read it](hogspot.sh).
 
 ---
 
-## 🔑 Permissões
+## 🔑 Permissions
 
-O script roda sem privilégio nenhum — mas aí ele enxerga menos, e avisa quando isso acontece.
+The script runs with no privileges at all — but then it sees less, and it tells you when that happens.
 
-**macOS — Full Disk Access.** Sem isso, áreas como Mail, Messages e Safari ficam
-invisíveis e o total sai subestimado. Habilite em
-*Ajustes do Sistema → Privacidade e Segurança → Acesso Total ao Disco* → seu terminal.
+**macOS — Full Disk Access.** Without it, areas like Mail, Messages and Safari are
+invisible and the total comes out low. Enable it in
+*System Settings → Privacy & Security → Full Disk Access* → your terminal.
 
-**Linux — root.** `/var/lib/docker`, o journal, `/var/crash`, o cache do snapd e
-`/root` não são legíveis pelo seu usuário. Pra contar tudo (a varredura continua read-only):
+**Linux — root.** `/var/lib/docker`, the journal, `/var/crash`, the snapd cache and
+`/root` aren't readable by your user. To count everything (the scan stays read-only):
 
 ```bash
 sudo HOME="$HOME" ./hogspot.sh
 ```
 
-Rodando assim, os comandos do menu que não começam com `sudo` (`npm cache clean`,
-`brew cleanup`, `rm` em caches da sua home) rodam como o seu usuário, não como root.
+When run this way, menu commands that don't start with `sudo` (`npm cache clean`,
+`brew cleanup`, `rm` on caches in your home) run as your user, not as root.
 
 ---
 
-## 📄 Relatório em markdown
+## 📄 Markdown report
 
 ```bash
 ./hogspot.sh --report ~/Downloads/hogspot-$(date +%F).md
 ```
 
-Salva o relatório completo — todas as seções mais o resumo, com o comando de cada
-item — sem códigos de cor. Bom pra comparar dois scans, anexar num ticket ou guardar
-antes de vender o Mac. No menu, `s` faz o mesmo.
+Saves the full report — every section plus the summary, with each item's command —
+without color codes. Handy for comparing two scans, attaching to a ticket or keeping
+before you sell your Mac. In the menu, `s` does the same.
 
 ---
 
-## 💻 Requisitos
+## 💻 Requirements
 
 |  | |
 |---|---|
-| **SO** | macOS (qualquer versão recente) ou Linux — Ubuntu/Debian em primeiro lugar, mas Fedora e Arch também são detectados |
-| **Shell** | `bash` 3.2+ (o que já vem no macOS; nada de bash 5 obrigatório) |
-| **Ferramentas** | `du`, `find`, `df`, `awk`, `sort` — POSIX básico |
-| **Opcionais** | `tmutil`, `sw_vers`, `xcrun`, `brew`, `docker`, `git`, `apt-get`, `dpkg`, `snap`, `flatpak`, `journalctl`, `swapon`, `zfs`, `timeshift` — cada um só é usado se estiver presente |
+| **OS** | macOS (any recent version) or Linux — Ubuntu/Debian first, but Fedora and Arch are detected too |
+| **Shell** | `bash` 3.2+ (the one that ships with macOS; no bash 5 required) |
+| **Tools** | `du`, `find`, `df`, `awk`, `sort` — basic POSIX |
+| **Optional** | `tmutil`, `sw_vers`, `xcrun`, `brew`, `docker`, `git`, `apt-get`, `dpkg`, `snap`, `flatpak`, `journalctl`, `swapon`, `zfs`, `timeshift` — each one is used only if present |
 
 ---
 
-## 🤝 Contribuindo
+## 🤝 Contributing
 
-Issues e PRs são bem-vindos. Duas coisas ajudam muito:
+Issues and PRs are welcome. Two things help a lot:
 
-1. **Um cache que faltou.** Se você tem uma pasta gigante de alguma ferramenta que o
-   `hogspot` ignora, abra uma issue com o caminho, o tamanho e o comando oficial de
-   limpeza. É o tipo de contribuição que mais melhora o script.
-2. **Saída em outra distro.** O suporte a Linux nasceu focado em Ubuntu/Debian —
-   relatos de Fedora, Arch, openSUSE e afins são ouro.
+1. **A missing cache.** If you have a huge folder from some tool that `hogspot`
+   ignores, open an issue with the path, the size and the official cleanup command.
+   It's the kind of contribution that improves the script the most.
+2. **Output from another distro.** Linux support started out focused on Ubuntu/Debian —
+   reports from Fedora, Arch, openSUSE and friends are gold.
 
-Antes de mandar PR: mantenha a varredura **read-only** (só o menu executa, e só com
-confirmação), sem dependências novas e compatível com `bash` 3.2. Passe o `shellcheck`.
-Nas mensagens, o tom é o de um colega na mesa do lado: direto, sem urgência falsa
-("seu disco está crítico!") e sem exclamação em ação normal.
+Before sending a PR: keep the scan **read-only** (only the menu runs things, and only
+after confirmation), add no new dependencies and stay compatible with `bash` 3.2. Run `shellcheck`.
+For messages, the tone is that of a colleague at the next desk: direct, no fake urgency
+("your disk is critical!") and no exclamation marks on routine actions.
 
 ---
 
-## 📜 Licença
+## 📜 License
 
-[MIT](LICENSE). Use, modifique e redistribua à vontade. O script é fornecido como
-está, sem garantia: ele mostra o comando antes de rodar justamente pra decisão ser sua.
+[MIT](LICENSE). Use, modify and redistribute it freely. The script comes as is,
+with no warranty: it shows the command before running it precisely so the call is yours.
 
 ---
 
 <div align="center">
 <sub>
 
-**hogspot** — *hog* (o processo/arquivo que come recurso) + *spot* (achar).
-O lugar onde os porcões se escondem. Nunca `HogSpot`.
+**hogspot** — *hog* (the process/file that eats resources) + *spot* (to find).
+Where the hogs hide. Never `HogSpot`.
 
 </sub>
 </div>
